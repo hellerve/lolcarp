@@ -1,0 +1,50 @@
+(defmodule Lol
+  (def spread 3.0)
+  (def freq 0.1)
+
+  (defn approx [val]
+    (/  (* val 3) 255))
+
+  (defn calc-color [f i o]
+    (+ (Double.to-int (Double.floor (* (Double.sin (+ (* f i) o))
+                                           127.0)))
+        128))
+
+  (defn rainbow [freq i]
+    (let [cur (* freq i)
+          r (calc-color freq i 0.0)
+          g (calc-color freq i (/ (* 2.0 Double.pi) 3.0))
+          b (calc-color freq i (/ (* 4.0 Double.pi) 3.0))]
+      (if (and (and (= r g) (= g b)) (> r 232))
+        (format "\x1b[38;5;%dm" r)
+        (let [r6 (approx r)
+              g6 (approx g)
+              b6 (approx b)
+              i (+ (+ (* 36 r6) (* 6 g6)) b6)]
+          (format "\x1b[38;5;%dm" i)))))
+
+  (defn reset []
+    @"\x1b[0m")
+
+  (defn write-raw [s origin]
+      (for [i 0 (count s)]
+        (let-do [c (char-at s i)
+                 idx (+ (Double.from-int origin)
+                     (/ (Double.from-int i) spread))]
+          (IO.print &(rainbow freq idx))
+          (IO.print &(format "%c" c))
+          (IO.print &(reset)))))
+
+  (defn write [s]
+    (do (System.seed-random (System.time))
+      (let [origin (Int.random)
+            strings (lines s)]
+        (for [i 0 (Array.count &strings)]
+          (let [cur (Array.nth &strings i)]
+            (do
+              (write-raw cur origin)
+              (when (/= i (Int.dec (Array.count &strings)))
+                (do
+                  (IO.println "")
+                  (set! origin (Int.inc origin))))))))))
+)

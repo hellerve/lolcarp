@@ -1,0 +1,6 @@
+; this will print out the file given as first argument to standard output.
+(load "lol.carp")
+(use Lol)
+
+(defn main []
+  (write &(IO.read-file (System.get-arg 1))))
