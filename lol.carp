@@ -27,7 +27,7 @@
     @"\x1b[0m")
 
   (defn write-raw [s origin]
-      (for [i 0 (count s)]
+      (for [i 0 (length s)]
         (let-do [c (char-at s i)
                  idx (+ (Double.from-int origin)
                      (/ (Double.from-int i) spread))]
@@ -36,14 +36,15 @@
           (IO.print &(reset)))))
 
   (defn write [s]
-    (do (System.seed-random (System.time))
+    (do
+      (Random.seed (/ (Double.from-int (System.time)) 1000.0))
       (let [origin (Int.random)
             strings (lines s)]
-        (for [i 0 (Array.count &strings)]
+        (for [i 0 (Array.length &strings)]
           (let [cur (Array.nth &strings i)]
             (do
               (write-raw cur origin)
-              (when (/= i (Int.dec (Array.count &strings)))
+              (when (/= i (Int.dec (Array.length &strings)))
                 (do
                   (IO.println "")
                   (set! origin (Int.inc origin))))))))))
