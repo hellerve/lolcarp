@@ -37,11 +37,11 @@
 
   (defn write [s]
     (do
-      (Random.seed (/ (Double.from-int (System.time)) 1000.0))
+      (Random.seed)
       (let [origin (Int.random)
             strings (lines s)]
         (for [i 0 (Array.length &strings)]
-          (let [cur (Array.nth &strings i)]
+          (let [cur (Array.unsafe-nth &strings i)]
             (do
               (write-raw cur origin)
               (when (/= i (Int.dec (Array.length &strings)))
